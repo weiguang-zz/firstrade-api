@@ -11,7 +11,7 @@ from firstrade import urls
 class FTSession:
     """Class creating a session for Firstrade."""
 
-    def __init__(self, username, password, pin, persistent_session=True):
+    def __init__(self, username, password, pin, persistent_session=True, proxies=None):
         """
         Initializes a new instance of the FTSession class.
 
@@ -27,6 +27,7 @@ class FTSession:
         self.pin = pin
         self.persistent_session = persistent_session
         self.session = requests.Session()
+        self.session.proxies = proxies
         self.login()
 
     def login(self):
@@ -171,12 +172,53 @@ class FTAccountData:
                 ).text,
                 "xml",
             )
+            # < ?xml
+            # version = "1.0"
+            # encoding = "utf-8"? >
+            # < response >
+            # < balances >
+            # < total_value >$0.00 < / total_value >
+            # < buyingpower >$0.00 < / buyingpower >
+            # < non_margin_funds >$0.00 < / non_margin_funds >
+            # < total_account_value >$0.00 < / total_account_value >
+            # < total_netchange_value >$0.00 < / total_netchange_value >
+            # < total_netchange_percent_value > -nan < / total_netchange_percent_value >
+            # < cash_money_lock >$0.00 < / cash_money_lock >
+            # < cash_balance >$0.00 < / cash_balance >
+            # < money_market_fund >$0.00 < / money_market_fund >
+            # < timestamp > 01: 58
+            # am < / timestamp >
+            # < / balances >
+            # < timestamp > Monday, December
+            # 11, 2023
+            # 1: 58:21
+            # AM
+            # EST < / timestamp >
+            # < / response >
             balance = account_soup.find("total_account_value").text
+            total_value = account_soup.find("total_value").text
+            buyingpower = account_soup.find("buyingpower").text
+            non_margin_funds = account_soup.find("non_margin_funds").text
+            total_account_value = account_soup.find("total_account_value").text
+            total_netchange_value = account_soup.find("total_netchange_value").text
+            total_netchange_percent_value = account_soup.find("total_netchange_percent_value").text
+            cash_money_lock = account_soup.find("cash_money_lock").text
+            cash_balance = account_soup.find("cash_balance").text
+            money_market_fund = account_soup.find("money_market_fund").text
             self.account_balances.append(balance)
             all_account_info.append(
                 {
                     account: {
                         "Balance": balance,
+                        "TotalValue": total_value,
+                        "BuyingPower": buyingpower,
+                        "NonMarginFunds": non_margin_funds,
+                        "TotalAccountValue": total_account_value,
+                        "TotalNetChangeValue": total_netchange_value,
+                        "TotalNetChangePercentValue": total_netchange_percent_value,
+                        "CashMoneyLock": cash_money_lock,
+                        "CashBalance": cash_balance,
+                        "MoneyMarketFund": money_market_fund,
                         "Status": {
                             "primary": account_status["data"]["primary"],
                             "domestic": account_status["data"]["domestic"],
