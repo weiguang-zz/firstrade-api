@@ -3,7 +3,8 @@ import order
 import symbols
 
 # Create a session
-ft_ss = account.FTSession(username="", password="", pin="")
+ft_ss = account.FTSession(username='zheng769', password='z$H@zr3yC$_$P@K', pin='8126',
+                          proxies={'https': 'http://127.0.0.1:7890', 'http': 'http://127.0.0.1:7890'})
 
 # Get account data
 ft_accounts = account.FTAccountData(ft_ss)
@@ -33,7 +34,7 @@ print(f"Volume: {quote.volume}")
 print(f"Company Name: {quote.company_name}")
 
 # Get positions and print them out for an account.
-positions = ft_accounts.get_positions(account=ft_accounts.account_numbers[1])
+positions = ft_accounts.get_positions(account=ft_accounts.account_numbers[0])
 for key in ft_accounts.securities_held:
     print(
         f"Quantity {ft_accounts.securities_held[key]['quantity']} of security {key} held in account {ft_accounts.account_numbers[1]}"
@@ -43,14 +44,14 @@ for key in ft_accounts.securities_held:
 ft_order = order.Order(ft_ss)
 
 # Place order and print out order confirmation data.
-ft_order.place_order(
+ft_order.place_orderq(
     ft_accounts.account_numbers[0],
     symbol="INTC",
     price_type=order.PriceType.MARKET,
     order_type=order.OrderType.BUY,
     quantity=1,
     duration=order.Duration.DAY,
-    dry_run=True,
+    dry_run=False,
 )
 
 # Print Order data Dict
