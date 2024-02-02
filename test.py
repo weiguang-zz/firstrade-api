@@ -1,3 +1,5 @@
+import pandas as pd
+
 from firstrade import account, order, symbols
 
 # Create a session
@@ -33,24 +35,29 @@ print(f"Company Name: {quote.company_name}")
 
 # Get positions and print them out for an account.
 positions = ft_accounts.get_positions(account=ft_accounts.account_numbers[0])
-for key in ft_accounts.securities_held:
-    print(
-        f"Quantity {ft_accounts.securities_held[key]['quantity']} of security {key} held in account {ft_accounts.account_numbers[1]}"
-    )
+# for key in ft_accounts.securities_held:
+#     print(
+#         f"Quantity {ft_accounts.securities_held[key]['quantity']} of security {key} held in account {ft_accounts.account_numbers[1]}"
+#     )
+print(positions)
 
 # Create an order object.
 ft_order = order.Order(ft_ss)
 
 # Place order and print out order confirmation data.
-ft_order.place_orderq(
-    ft_accounts.account_numbers[0],
-    symbol="INTC",
-    price_type=order.PriceType.MARKET,
-    order_type=order.OrderType.BUY,
-    quantity=1,
-    duration=order.Duration.DAY,
-    dry_run=False,
-)
+# ft_order.place_orderq(
+#     ft_accounts.account_numbers[0],
+#     symbol="INTC",
+#     price_type=order.PriceType.MARKET,
+#     order_type=order.OrderType.BUY,
+#     quantity=1,
+#     duration=order.Duration.DAY,
+#     dry_run=False,
+# )
+
+expire_date = pd.Timestamp('2024-02-17 05:00:00', tz='Asia/Shanghai')
+ft_order.place_option_order(ft_accounts.account_numbers[0], 'JD', 'BO', 1, expire_date, 22, 'C',
+                            0.05, False)
 
 # Print Order data Dict
 print(ft_order.order_confirmation)
