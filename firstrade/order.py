@@ -4,7 +4,7 @@ from typing import List
 
 import pandas as pd
 
-from account import FTSession
+from firstrade.account import FTSession
 from bs4 import BeautifulSoup, Tag
 
 from firstrade import urls
