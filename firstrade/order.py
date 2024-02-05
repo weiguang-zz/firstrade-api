@@ -1,9 +1,11 @@
+import logging
 from enum import Enum
+from typing import List
 
 import pandas as pd
 
 from account import FTSession
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 
 from firstrade import urls
 
@@ -54,6 +56,137 @@ class Order:
         self.order_confirmation = {}
 
 
+    def order_status(self):
+        # todo process the partial filled condition
+        data = {
+            'accountId': '90105977'
+        }
+        page_res = self.ft_session.post(
+            url="https://invest.firstrade.com/cgi-bin/orderstatus", headers=urls.session_headers(), data=data
+        )
+        if page_res.status_code != 200:
+            raise RuntimeError('wrong data')
+
+        order_data = BeautifulSoup(
+            page_res.text,
+            "html.parser",
+        )
+        order_list_table = order_data.find(attrs={'id': 'order_status'})
+        tr_tags: List[Tag] = order_list_table.find('tbody').find_all('tr')
+        the_orders = {}
+        for tr_tag in tr_tags:
+            if 'id' not in tr_tag.attrs or not tr_tag.attrs['id'].startswith('90105977'):
+                continue
+            td_tags = tr_tag.find_all('td')
+            if len(td_tags) != 9:
+                continue
+            quantity = int(td_tags[2].text.strip())
+            code = td_tags[3].find('a').text.strip()
+            limit_price = td_tags[5].text.strip()
+            trans_type = td_tags[1].text.strip()
+            status = td_tags[8].find('div').find('strong').text.strip()
+            can_tag = td_tags[8].find('a', attrs={'class': 'can'})
+            clordid = None
+            if can_tag:
+                clordid = can_tag.find('input', attrs={'name': 'clordid'}).attrs['value'].strip()
+
+            the_order = {
+                'clordid': clordid,
+                'quantity': quantity,
+                'code': code,
+                'limit_price': limit_price,
+                'trans_type': trans_type,
+                'status': status
+            }
+
+            the_key = "{}_{}_{}".format(code, limit_price, trans_type)
+            the_orders[the_key] = the_order
+
+        return the_orders
+
+
+    def cancel_option_order(self, account_id, clordid):
+
+        data = {
+            'clordid': clordid,
+            'accountid': account_id,
+            'ordertype': '',
+        }
+
+        page_res = self.ft_session.post(
+            url="https://invest.firstrade.com/cgi-bin/cxlorder", headers=urls.session_headers(), data=data
+        )
+
+        if page_res.status_code != 200:
+            raise RuntimeError('wrong data')
+
+        # 校验订单状态
+        if '/cgi-bin/main#/cgi-bin/cxlorder' not in page_res.text or clordid in page_res.text:
+            logging.error('cancel error, request:{}, response:{}'.format(data, page_res.text))
+            raise RuntimeError('cancel error')
+
+        return
+
+
+    def update_option_order_price(
+            self,
+            clordid,
+            account,
+            symbol,
+            option_order_type,
+            quantity,
+            expire_date: pd.Timestamp,
+            strike,
+            option_type,
+            new_limit_price):
+        # todo change the quantity
+        expire_date_str = expire_date.tz_convert("America/New_York").strftime("%m/%d/%Y")
+        strike_str = "%.2f" % strike
+        if option_type not in ['C', 'P']:
+            raise RuntimeError('wrong option type')
+        limit_price_str = str(round(new_limit_price, 2))
+        if option_order_type not in ['BO', 'SO', 'BC', 'SC']:
+            raise RuntimeError('wrong option order type')
+
+        data = {
+            'requestfrom': 'orderstatus',
+            'accountId': account,
+            'option_orderbar_clordid': clordid,
+            'option_orderbar_accountid': account,
+            'submitOrders': '1',
+            'previewOrders': '',
+            'haspreviewedOrder': '0',
+            'currOpenQty': '1',
+            'transactionType': option_order_type,
+            'contracts': '{}'.format(quantity),
+            'underlyingsymbol': '{}'.format(symbol),
+            'expdate': expire_date_str,
+            'strike': strike_str,
+            'callputtype': option_type,
+            'priceType': '2',
+            'limitPrice': limit_price_str,
+            'duration': '0',
+            'qualifier': '0'
+        }
+        page_res = self.ft_session.post(
+            url="https://invest.firstrade.com/cgi-bin/option_cxlrpl_response", headers=urls.session_headers(), data=data
+        )
+        if page_res.status_code != 200:
+            raise RuntimeError('wrong data')
+
+        order_data = BeautifulSoup(
+                    page_res.text,
+                    "xml",
+                )
+        order_confirmation = {}
+        order_success = order_data.find("success").text.strip()
+        order_confirmation["success"] = order_success
+        action_data = order_data.find("actiondata").text.strip()
+        if order_success != "Yes":
+            logging.error("place order error {}".format(page_res.text))
+            raise RuntimeError('place order error {}'.format(action_data))
+
+        return order_confirmation
 
     def place_option_order(
         self,
@@ -231,6 +364,7 @@ class Order:
             order_confirmation["actiondata"] = action_data
         order_confirmation["errcode"] = order_data.find("errcode").text.strip()
         self.order_confirmation = order_confirmation
+        return order_confirmation
 
     def place_order(
         self,
@@ -336,3 +470,4 @@ class Order:
             order_confirmation["actiondata"] = action_data
         order_confirmation["errcode"] = order_data.find("errcode").text.strip()
         self.order_confirmation = order_confirmation
+        return order_confirmation

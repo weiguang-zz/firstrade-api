@@ -32,8 +32,8 @@ ft_ss = account.FTSession(username='zheng769', password='z$H@zr3yC$_$P@K', pin='
 # 更新订单
 
 data = {
-    'clordid': 'DF21ACF00016748',
-    'accountId': '90105977',
+    'clordid': 'FF22B6U00023940',
+    'accountid': '90105977',
     'ordertype': '',
 }
 
@@ -70,7 +70,7 @@ headers = {
 #   --compressed
 
 page_res = ft_ss.post(
-                url="https://invest.firstrade.com/cgi-bin/cxlorder", headers=headers, data=data
+                url="https://invest.firstrade.com/cgi-bin/cxlorder", headers=urls.session_headers(), data=data
             )
 
 if page_res.status_code != 200:

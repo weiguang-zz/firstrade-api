@@ -2,24 +2,6 @@ from typing import List
 
 import pandas as pd
 from bs4 import BeautifulSoup, Tag
-#
-# s = """
-# <response>
-# <order>
-# <success>No</success>
-# <redirect></redirect>
-# <actiondata>此订单的预估总额超出您账户的可用购买力。存入的新资金可能需要5个工作日过账。</actiondata>
-# <errcode>1041</errcode>
-# <action>updateDiv</action>
-# </order>
-# </response>
-# """
-#
-# order_res = BeautifulSoup(
-#             s,
-#             "xml",
-#         )
-#
 # print("done")
 from firstrade import account, order, symbols
 import urls
@@ -75,15 +57,15 @@ clordid = pd.DataFrame(the_orders).iloc[0]['clordid']
 
 print(ft_ss.session.cookies.get_dict())
 
-data = {
-    'clordid': clordid,
-    'accountId': '90105977',
-    'ordertype': '',
-}
-
-page_res = ft_ss.post(
-                url="https://invest.firstrade.com/cgi-bin/cxlorder", headers=urls.session_headers(), data=data
-            )
-
-
-print(page_res.text)
+# data = {
+#     'clordid': clordid,
+#     'accountid': '90105977',
+#     'ordertype': '',
+# }
+#
+# page_res = ft_ss.post(
+#                 url="https://invest.firstrade.com/cgi-bin/cxlorder", headers=urls.session_headers(), data=data
+#             )
+#
+#
+# print(page_res.text)
