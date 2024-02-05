@@ -3,8 +3,6 @@ from enum import Enum
 from typing import List
 
 import pandas as pd
-
-from firstrade.account import FTSession
 from bs4 import BeautifulSoup, Tag
 
 from firstrade import urls
@@ -51,7 +49,7 @@ class Order:
     It also contains a method to place an order.
     """
 
-    def __init__(self, ft_session: FTSession):
+    def __init__(self, ft_session):
         self.ft_session = ft_session
         self.order_confirmation = {}
 

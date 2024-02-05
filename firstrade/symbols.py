@@ -1,4 +1,3 @@
-from account import FTSession
 from bs4 import BeautifulSoup
 
 from firstrade import urls
@@ -23,7 +22,7 @@ class SymbolQuote:
         company_name (str): The name of the company associated with the symbol.
     """
 
-    def __init__(self, ft_session: FTSession, symbol: str):
+    def __init__(self, ft_session, symbol: str):
         """
         Initializes a new instance of the SymbolQuote class.
 
