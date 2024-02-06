@@ -75,6 +75,7 @@ class Order:
         for tr_tag in tr_tags:
             if 'id' not in tr_tag.attrs or not tr_tag.attrs['id'].startswith('90105977'):
                 continue
+            the_id = tr_tag.attrs['id']
             td_tags = tr_tag.find_all('td')
             if len(td_tags) != 9:
                 continue
@@ -89,6 +90,7 @@ class Order:
                 clordid = can_tag.find('input', attrs={'name': 'clordid'}).attrs['value'].strip()
 
             the_order = {
+                'id': the_id,
                 'clordid': clordid,
                 'quantity': quantity,
                 'code': code,
