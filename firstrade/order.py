@@ -1,4 +1,5 @@
 import logging
+import re
 from enum import Enum
 from typing import List
 
@@ -336,27 +337,15 @@ class Order:
         order_success = order_data.find("success").text.strip()
         order_confirmation["success"] = order_success
         action_data = order_data.find("actiondata").text.strip()
-        if order_success != "No":
+        if order_success == "YES":
             # Extract the table data
-            table_start = action_data.find("<table")
-            table_end = action_data.find("</table>") + len("</table>")
-            table_data = action_data[table_start:table_end]
-            table_data = BeautifulSoup(table_data, "xml")
-            titles = table_data.find_all("th")
-            data = table_data.find_all("td")
-            for i, title in enumerate(titles):
-                order_confirmation[f"{title.get_text()}"] = data[i].get_text()
-            if not dry_run:
-                start_index = action_data.find(
-                    "Your order reference number is: "
-                ) + len("Your order reference number is: ")
-                end_index = action_data.find("</div>", start_index)
-                order_number = action_data[start_index:end_index]
-            else:
-                start_index = action_data.find('id="') + len('id="')
-                end_index = action_data.find('" style=', start_index)
-                order_number = action_data[start_index:end_index]
-            order_confirmation["orderid"] = order_number
+            ss = "</table>::"
+            the_id = action_data[action_data.find(ss) + len(ss):].strip()
+            pattern = re.compile("^\d+-\d+$")
+            if not pattern.match(the_id):
+                logging.error("the response:{}".format(order_data))
+                raise RuntimeError('wrong response')
+            order_confirmation["orderid"] = the_id
         else:
             order_confirmation["actiondata"] = action_data
         order_confirmation["errcode"] = order_data.find("errcode").text.strip()
