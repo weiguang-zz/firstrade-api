@@ -1,7 +1,7 @@
 import logging
 import re
 from enum import Enum
-from typing import List
+from typing import List, Dict
 
 import pandas as pd
 from bs4 import BeautifulSoup, Tag
@@ -197,7 +197,7 @@ class Order:
         option_type,
         limit_price,
         dry_run=True,
-    ):
+    ) -> Dict:
         """
         Builds and places an order.
         :attr: 'order_confirmation`
