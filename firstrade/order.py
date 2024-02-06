@@ -55,7 +55,6 @@ class Order:
 
 
     def order_status(self):
-        # todo process the partial filled condition
         data = {
             'accountId': '90105977'
         }
@@ -78,7 +77,7 @@ class Order:
             td_tags = tr_tag.find_all('td')
             if len(td_tags) != 9:
                 continue
-            quantity = int(td_tags[2].text.strip())
+            quantity = td_tags[2].text.strip()
             code = td_tags[3].find('a').text.strip()
             limit_price = td_tags[5].text.strip()
             trans_type = td_tags[1].text.strip()

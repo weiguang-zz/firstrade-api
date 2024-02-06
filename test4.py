@@ -32,7 +32,7 @@ ft_ss = account.FTSession(username='zheng769', password='z$H@zr3yC$_$P@K', pin='
 # 更新订单
 
 data = {
-    'clordid': 'FF22B6U00023940',
+    'clordid': 'FF25AD800009195',
     'accountid': '90105977',
     'ordertype': '',
 }

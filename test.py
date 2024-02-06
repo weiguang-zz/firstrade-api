@@ -55,8 +55,8 @@ ft_order = order.Order(ft_ss)
 #     dry_run=False,
 # )
 
-expire_date = pd.Timestamp('2024-02-17 05:00:00', tz='Asia/Shanghai')
-ft_order.place_option_order(ft_accounts.account_numbers[0], 'JD', 'BO', 1, expire_date, 22, 'C',
+expire_date = pd.Timestamp('2025-01-18 05:00:00', tz='Asia/Shanghai')
+ft_order.place_option_order(ft_accounts.account_numbers[0], 'FENG', 'BO', 2, expire_date, 7.5, 'C',
                             0.05, False)
 
 # Print Order data Dict
