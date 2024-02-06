@@ -79,11 +79,15 @@ class Order:
             td_tags = tr_tag.find_all('td')
             if len(td_tags) != 9:
                 continue
+            place_time = td_tags[0].text.strip()
             quantity = td_tags[2].text.strip()
             code = td_tags[3].find('a').text.strip()
             limit_price = td_tags[5].text.strip()
+            filled_price = None
             trans_type = td_tags[1].text.strip()
             status = td_tags[8].find('div').find('strong').text.strip()
+            if status == 'Bought':
+                filled_price = td_tags[8].find('div').text.split('@')[1].strip()
             can_tag = td_tags[8].find('a', attrs={'class': 'can'})
             clordid = None
             if can_tag:
@@ -91,16 +95,19 @@ class Order:
 
             the_order = {
                 'id': the_id,
+                'place_time': place_time,
                 'clordid': clordid,
                 'quantity': quantity,
                 'code': code,
                 'limit_price': limit_price,
+                'filled_price': filled_price,
                 'trans_type': trans_type,
                 'status': status
             }
-
-            the_key = "{}_{}_{}".format(code, limit_price, trans_type)
-            the_orders[the_key] = the_order
+            if the_id in the_orders:
+                the_orders[the_id].append(the_order)
+            else:
+                the_orders[the_id] = [the_order]
 
         return the_orders
 
