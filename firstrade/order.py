@@ -64,6 +64,9 @@ class Order:
         )
         if page_res.status_code != 200:
             raise RuntimeError('wrong data')
+        the_orders = {}
+        if 'You do not have any orders' in page_res.text:
+            return the_orders
 
         order_data = BeautifulSoup(
             page_res.text,
@@ -71,7 +74,6 @@ class Order:
         )
         order_list_table = order_data.find(attrs={'id': 'order_status'})
         tr_tags: List[Tag] = order_list_table.find('tbody').find_all('tr')
-        the_orders = {}
         for tr_tag in tr_tags:
             if 'id' not in tr_tag.attrs or not tr_tag.attrs['id'].startswith('90105977'):
                 continue
