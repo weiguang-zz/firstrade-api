@@ -68,6 +68,10 @@ class Order:
         if 'You do not have any orders' in page_res.text:
             return the_orders
 
+        if 'Please login first' in page_res.text:
+            self.ft_session.login()
+            return the_orders
+
         order_data = BeautifulSoup(
             page_res.text,
             "html.parser",
@@ -148,7 +152,6 @@ class Order:
             strike,
             option_type,
             new_limit_price):
-        # todo change the quantity
         expire_date_str = expire_date.tz_convert("America/New_York").strftime("%m/%d/%Y")
         strike_str = "%.2f" % strike
         if option_type not in ['C', 'P']:
@@ -188,10 +191,10 @@ class Order:
                     "xml",
                 )
         order_confirmation = {}
-        order_success = order_data.find("success").text.strip()
+        order_success = order_data.find("success").text.strip().upper()
         order_confirmation["success"] = order_success
         action_data = order_data.find("actiondata").text.strip()
-        if order_success != "Yes":
+        if order_success != "YES":
             logging.error("place order error {}".format(page_res.text))
             raise RuntimeError('place order error {}'.format(action_data))
 
@@ -345,7 +348,7 @@ class Order:
             "xml",
         )
         order_confirmation = {}
-        order_success = order_data.find("success").text.strip()
+        order_success = order_data.find("success").text.strip().upper()
         order_confirmation["success"] = order_success
         action_data = order_data.find("actiondata").text.strip()
         if order_success == "YES":
@@ -439,10 +442,10 @@ class Order:
             "xml",
         )
         order_confirmation = {}
-        order_success = order_data.find("success").text.strip()
+        order_success = order_data.find("success").text.strip().upper()
         order_confirmation["success"] = order_success
         action_data = order_data.find("actiondata").text.strip()
-        if order_success != "No":
+        if order_success != "NO":
             # Extract the table data
             table_start = action_data.find("<table")
             table_end = action_data.find("</table>") + len("</table>")
