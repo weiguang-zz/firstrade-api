@@ -194,9 +194,9 @@ class Order:
         order_success = order_data.find("success").text.strip().upper()
         order_confirmation["success"] = order_success
         action_data = order_data.find("actiondata").text.strip()
+        order_confirmation['actiondata'] = action_data
         if order_success != "YES":
             logging.error("place order error {}".format(page_res.text))
-            raise RuntimeError('place order error {}'.format(action_data))
 
         return order_confirmation
 
