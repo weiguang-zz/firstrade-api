@@ -92,7 +92,7 @@ class Order:
             filled_price = None
             trans_type = td_tags[1].text.strip()
             status = td_tags[8].find('div').find('strong').text.strip()
-            if status == 'Bought':
+            if status == 'Bought' or status == 'Sold':
                 filled_price = td_tags[8].find('div').text.split('@')[1].strip()
             can_tag = td_tags[8].find('a', attrs={'class': 'can'})
             clordid = None
