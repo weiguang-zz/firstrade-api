@@ -140,8 +140,8 @@ class Order:
             raise RuntimeError('wrong data')
 
         ft_order_status_map = self.parse_order_status(page_res.text)
-        if ft_order_id not in ft_order_status_map or ft_order_status_map[ft_order_id][0]['status'].upper() != 'CANCELLED':
-            logging.error('cancel error, request:{}, response:{}'.format(data, page_res.text))
+        if ft_order_id not in ft_order_status_map or ft_order_status_map[ft_order_id][0]['status'].upper() not in ['CANCELLED', 'CANCELING']:
+            logging.error('cancel error, request:{}, ft_order_id:{}, ft_order_status_map:{}, response:{}'.format(data, ft_order_id, str(ft_order_status_map), page_res.text))
             raise RuntimeError('cancel error')
 
         return
