@@ -72,10 +72,16 @@ class Order:
             self.ft_session.login()
             return the_orders
 
+        the_orders = self.parse_order_status(page_res.text)
+        return the_orders
+
+    @staticmethod
+    def parse_order_status(page_text):
         order_data = BeautifulSoup(
-            page_res.text,
+            page_text,
             "html.parser",
         )
+        the_orders = {}
         order_list_table = order_data.find(attrs={'id': 'order_status'})
         tr_tags: List[Tag] = order_list_table.find('tbody').find_all('tr')
         for tr_tag in tr_tags:
@@ -118,7 +124,7 @@ class Order:
         return the_orders
 
 
-    def cancel_option_order(self, account_id, clordid):
+    def cancel_option_order(self, account_id, clordid, ft_order_id):
 
         data = {
             'clordid': clordid,
@@ -133,8 +139,8 @@ class Order:
         if page_res.status_code != 200:
             raise RuntimeError('wrong data')
 
-        # 校验订单状态
-        if '/cgi-bin/main#/cgi-bin/cxlorder' not in page_res.text or clordid in page_res.text:
+        ft_order_status_map = self.parse_order_status(page_res.text)
+        if ft_order_id not in ft_order_status_map or ft_order_status_map[ft_order_id]['status'].upper() != 'CANCELLED':
             logging.error('cancel error, request:{}, response:{}'.format(data, page_res.text))
             raise RuntimeError('cancel error')
 
